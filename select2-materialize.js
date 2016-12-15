@@ -2,8 +2,12 @@
     $.fn.sm_select = function (options) {
         var defaults = $.extend({
             input_text: 'Select option...',
-            duration: 300,
-            show_placeholder: false
+            duration: 200,
+            show_placeholder: false,
+            drop_position: {
+                top: null,
+                left: null
+            }
         }, options);
         return this.each(function (e) {
             $(this).select2(options);
@@ -16,17 +20,22 @@
                     $(this).attr('placeholder') : defaults.input_text));
                 drop_down.hide();
                 setTimeout(function () {
-                    if(defaults.show_placeholder == false) {
+                    if (defaults.show_placeholder == false) {
                         var out_p = obj.find('option[placeholder]');
                         out_p.each(function () {
                             drop_down.find('li:contains("' + $(this).text() + '")').css('display', 'none');
                         });
                     }
-                    var inputHeight = obj.next().offset().top;
-                    var height = obj.next().height();
-                    var dropHeight = parseFloat($('body>.select2-container').css('top'));
-                    drop_down.parent().css('top', dropHeight + height * ((inputHeight < dropHeight) ? -1 : 1) + 'px');
-                    drop_down.css('opacity', 0).slideDown(defaults.duration, 'easeOutCubic', function () {
+                    if ($.isNumeric(defaults.drop_position.left) && $.isNumeric(defaults.drop_position.top)) {
+                        drop_down.parent().css('top', defaults.drop_position.top + 'px');
+                        drop_down.parent().css('left', defaults.drop_position.left + 'px');
+                    } else {
+                        var inputHeight = obj.next().offset().top;
+                        var height = obj.next().height();
+                        var dropHeight = parseFloat($('body>.select2-container').css('top'));
+                        drop_down.parent().css('top', dropHeight + height * ((inputHeight < dropHeight) ? -1 : 1) + 'px');
+                    }
+                    drop_down.css('opacity', 0).stop(true, true).slideDown(defaults.duration, 'easeOutCubic', function () {
                         drop_down.find('.select2-search__field').focus();
                     }).animate(
                         {opacity: 1},
