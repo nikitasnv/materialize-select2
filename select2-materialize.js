@@ -1,7 +1,9 @@
 (function (document, $, undefined) {
     $.fn.sm_select = function (options) {
         var defaults = $.extend({
-            input_text: 'Select option...'
+            input_text: 'Select option...',
+            duration: 300,
+            show_placeholder: false
         }, options);
         return this.each(function (e) {
             $(this).select2(options);
@@ -14,15 +16,21 @@
                     $(this).attr('placeholder') : defaults.input_text));
                 drop_down.hide();
                 setTimeout(function () {
+                    if(defaults.show_placeholder == false) {
+                        var out_p = obj.find('option[placeholder]');
+                        out_p.each(function () {
+                            drop_down.find('li:contains("' + $(this).text() + '")').css('display', 'none');
+                        });
+                    }
                     var inputHeight = obj.next().offset().top;
                     var height = obj.next().height();
                     var dropHeight = parseFloat($('body>.select2-container').css('top'));
                     drop_down.parent().css('top', dropHeight + height * ((inputHeight < dropHeight) ? -1 : 1) + 'px');
-                    drop_down.css('opacity', 0).slideDown(300, 'easeOutCubic', function () {
+                    drop_down.css('opacity', 0).slideDown(defaults.duration, 'easeOutCubic', function () {
                         drop_down.find('.select2-search__field').focus();
                     }).animate(
                         {opacity: 1},
-                        {queue: false, duration: 300}
+                        {queue: false, duration: defaults.duration}
                     )
                 }, 10);
                 select_state = true;
@@ -31,11 +39,11 @@
                 if (select_state) {
                     e.preventDefault();
                     drop_down = $('body>.select2-container .select2-dropdown');
-                    drop_down.slideUp(300, 'easeOutCubic', function () {
+                    drop_down.slideUp(defaults.duration, 'easeOutCubic', function () {
                         obj.select2('close');
                     }).animate(
                         {opacity: 0},
-                        {queue: false, duration: 300, easing: 'easeOutSine'}
+                        {queue: false, duration: defaults.duration, easing: 'easeOutSine'}
                     );
                     select_state = false;
                 }
